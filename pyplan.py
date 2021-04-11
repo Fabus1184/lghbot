@@ -11,12 +11,16 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import sys
 
-
-
-
 #kurse = ["2rel2","2s2","3ch1","2inf1","5M2","3d1","2geo1","3e2","5Ph1","2mu1","5Wi1","2g2"]
-kurse = sys.argv[1]
+#kurse = sys.argv[1].split("")
+kurse = str(sys.argv[1]).replace("\"","").split(",")
 meine_klasse = sys.argv[2]
+
+'''with open("log","a") as f:
+    f.write(sys.argv[1]+":"+sys.argv[2])
+    for x in kurse:
+        f.write(x+"_")
+'''
 #print("-"+str(meine_klasse)+"-")
 #kurse = ["3bio1"]
 #meine_klasse="11"
@@ -69,6 +73,10 @@ def prettyprint():
     kommentar = []
 
     for line in x:
+        orig = line
+        appended = False
+        if len(line.lstrip(' '))+25 < len(line):
+            appended = True
         datum.append(line[0:2])
         stunde.append(line[4:9].replace(" ",""))
         art.append(line[12:24].replace(" ",""))
@@ -89,17 +97,34 @@ def prettyprint():
             raum.append(line.split(" ")[0])
             line=line[len(line.split(" ")[0]):]
             line=line.lstrip(' ')
-        kommentar.append(line)
+        if not appended:
+            kommentar.append(line)
+        else:
+            kommentar[len(kommentar)-1]+=orig.lstrip(" ")
+            kommentar.append(" ")
+    
 
     for i in range(0,len(datum)):
         if kommentar[i] == "":
             kommentar[i] = "---"
+        kommentar[i] = kommentar[i].replace("+ ","+")
+        kommentar[i] = kommentar[i].replace(" +","+")
+        kommentar[i] = kommentar[i].replace("+"," + ")
 
 
     pt.field_names = ["Datum", "Stunde", "Art", "Klasse", "Lehrer" ,"Kurs" ,"Raum" ,"Kommentar"]
     for i in range(0,len(datum)):
-        if kurs[i] in kurse and klasse[i] == meine_klasse:
-            pt.add_row([datum[i],stunde[i],art[i],klasse[i],lehrer[i],kurs[i],raum[i],kommentar[i]])    
+        #DEBUG
+        #print(kommentar[i])
+#        if kurs[i] in kurse and klasse[i] == meine_klasse:
+        #if meine_klasse in klasse[i] and (kurs[i] in kurse or kurs[i] in kommentar[i]):
+        condition = False
+        for x in kurse:
+            if str(x) in str(kommentar[i]):
+                condition = True
+        if meine_klasse in klasse[i] and (kurs[i] in kurse or condition): #or condition): #or [ele for ele in kurse if(ele in kommentar[i])] ):
+            pt.add_row([datum[i],stunde[i],art[i],klasse[i],lehrer[i],kurs[i],raum[i],kommentar[i]])
+
     pt.align = "l"
     print(pt)
     #with open("plan.txt","w+") as f:
@@ -122,7 +147,6 @@ def main():
             creds = pickle.load(token)
 
     # If there are no (valid) credentials available, let the user log in.
-
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -157,10 +181,12 @@ def main():
                     id = (msg['id'])
                     message = service.users().messages().get(userId='me',id=id).execute()
                     for part in message['payload'].get('parts', ''):
-                        if part['filename']:
+                        if part['filename'] and "ertret" in part['filename']:
                             att_id=part['body']['attachmentId']
                             att=service.users().messages().attachments().get(userId='me', messageId=id,id=att_id).execute()
                             data=att['data']
+                        else:
+                            continue
                     file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
                     path = "plan.pdf"
                     with open(path, 'wb') as f:
