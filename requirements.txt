@@ -79,7 +79,6 @@ pycodestyle==2.4.0
 pycparser==2.20
 pycrypto==2.6.1
 pycryptodomex==3.6.1
-pycurl==7.43.0.2
 pygal==2.4.0
 PyGObject==3.30.4
 pymdstat==0.4.2
@@ -103,7 +102,6 @@ requests-toolbelt==0.8.0
 rsa==4.7
 scandir==1.10.0
 SecretStorage==2.3.1
-shadowsocks==2.8.2
 six==1.15.0
 sortedcontainers==2.3.0
 speedtest-cli==2.0.2
@@ -119,7 +117,6 @@ websocket-client==0.53.0
 wifi==0.3.8
 xmltodict==0.12.0
 yarl==1.6.3
-youtube-dl==2019.1.17
 zeroconf==0.28.8
 zope.component==4.3.0
 zope.event==4.2.0
