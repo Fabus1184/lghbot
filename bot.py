@@ -7,7 +7,6 @@ import os
 import random
 import subprocess
 import time
-import sys
 import traceback
 import collections
 from sortedcontainers import SortedDict

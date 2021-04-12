@@ -3,8 +3,13 @@ import discord
 import asyncio
 import tinydb
 from tinydb import Query, TinyDB
+import sys
+import os
+from subprocess import PIPE, Popen
+
 
 async def vplan(ctx):
+    db = TinyDB("res/db/classes.db")
     try:
         classes = db.search(Query().id == ctx.message.author.id)[0]["classes"]
         if not classes:
