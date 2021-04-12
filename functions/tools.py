@@ -1,4 +1,5 @@
 import re
+import discord
 
 def id_from_mention(ctx, mention):
     assert mention, str
