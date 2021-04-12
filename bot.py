@@ -52,10 +52,10 @@ def conti(c1, c2, c3):
     clist.sort()
     (c1, c2, c3) = clist
 
-    # print(clist)
-    # print(c1)
-    # print(c2)
-    # print(c3)
+     print(clist)
+     print(c1)
+     print(c2)
+     print(c3)
 
     if c2 == c1 + 1 and c3 == c2 + 1 and c3 // 7 == c1 // 7:
         return True
@@ -92,9 +92,9 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 db = TinyDB("classes.db")
-# db.insert({"id":0,"classes":"null"})
-# for x in db.all():
-# print(x)
+ db.insert({"id":0,"classes":"null"})
+ for x in db.all():
+ print(x)
 
 leaderboard = TinyDB("leaderboard.db")
 
@@ -102,8 +102,8 @@ trio_double = 4
 
 prefix = "-"
 
-# with open("prefix","r") as f:
-#    prefix = f.readline()[0]
+ with open("prefix","r") as f:
+    prefix = f.readline()[0]
 
 general_error_message = "%s this didn't work, please check your syntax."
 
@@ -111,18 +111,18 @@ bot = commands.Bot(command_prefix=prefix, help_command=None)
 
 
 def to_lb(id, points, category):
-    # print(id)
-    # print(points)
-    # print(category)
+     print(id)
+     print(points)
+     print(category)
     tmp = leaderboard.search((where("id") == id) & (where("category") == category))
-    # print(tmp)
+     print(tmp)
     if tmp:
         leaderboard.update(
             {"points": (int(tmp[0]["points"]) + int(points))},
             (where("id") == id) & (where("category") == category),
         )
     else:
-        # print("INSERT")
+         print("INSERT")
         leaderboard.insert({"id": id, "points": points, "category": category})
 
 
@@ -287,7 +287,7 @@ bot.command(name="lb", description="show leaderboard")(lb.callback)
 
 
 @bot.command(name="stats", description="show personal stats")
-# @commands.has_permissions(manage_webhooks=True)
+ @commands.has_permissions(manage_webhooks=True)
 async def stats(ctx):
 
     trio = ""
@@ -360,7 +360,7 @@ async def settz(ctx, classes, grade):
             )
             return
         if not db.search(Query().id == ctx.message.author.id):
-            # print("NEW ENTRY")
+             print("NEW ENTRY")
             classes = str(classes).replace(" ", "")
             db.insert(
                 {"id": ctx.message.author.id, "classes": str(classes), "grade": (grade)}
@@ -417,7 +417,7 @@ async def get(ctx):
 async def vplan(ctx):
     try:
         classes = db.search(Query().id == ctx.message.author.id)[0]["classes"]
-        # print(classes)
+         print(classes)
         if not classes:
             await ctx.send(
                 "%s, please set your desired classes first!"
@@ -545,7 +545,7 @@ async def swt(ctx, arg):
 
 
 trio_running = False
-# ------------------------------- TRIO -------------------------------------------------
+ ------------------------------- TRIO -------------------------------------------------
 
 
 @bot.command(name="trio", description="play a game of trio")
@@ -570,11 +570,11 @@ async def trio(ctx, incount):
 
     trio_running = True
     await bot.change_presence(activity=discord.Game(name="Trio"))
-    # if str(ctx.message.channel.id) != "802483764659355668":
-    #    await ctx.send("this feature is currently in test-only mode :(")
-    #    return
+     if str(ctx.message.channel.id) != "802483764659355668":
+        await ctx.send("this feature is currently in test-only mode :(")
+        return
 
-    # server = ctx.message.guild
+     server = ctx.message.guild
     category = bot.get_channel(802864419902062612)
     await ctx.message.guild.create_text_channel("trio-tmp", category=category)
     channel = discord.utils.get(ctx.guild.channels, name="trio-tmp")
@@ -596,14 +596,14 @@ async def trio(ctx, incount):
 
     table.hrules = ALL
 
-    # channel = ctx.message.channel
+     channel = ctx.message.channel
 
     user = None
 
     punkte = []
     ids = []
 
-    # Musik
+     Musik
 
     try:
         os.remove("output.mp3")
@@ -642,7 +642,7 @@ async def trio(ctx, incount):
     except:
         pass
 
-    # DONT TOUCH
+     DONT TOUCH
 
     suchs = []
 
@@ -659,8 +659,8 @@ async def trio(ctx, incount):
             % (such, waittimeout)
         )
 
-        # tab=tab.replace(" 1","1️⃣").replace(" 2","2️⃣").replace(" 3","3️⃣").replace(" 4","4️⃣").replace(" 5","5️⃣").replace(" 6","6️⃣").replace(" 7","7️⃣")
-        # tab=tab.replace(" 8","8️⃣").replace(" 9","9️⃣")
+         tab=tab.replace(" 1","1️⃣").replace(" 2","2️⃣").replace(" 3","3️⃣").replace(" 4","4️⃣").replace(" 5","5️⃣").replace(" 6","6️⃣").replace(" 7","7️⃣")
+         tab=tab.replace(" 8","8️⃣").replace(" 9","9️⃣")
 
         embed = discord.Embed(color=0xF1A90F)
         embed.add_field(name="Trio", value=tab, inline=False)
@@ -680,7 +680,7 @@ async def trio(ctx, incount):
             c2 = comb[1]
             c3 = comb[2]
 
-            #''####'''#####################
+            '''''
             if c1[0] == "g" or c1[0] == "G":
                 c1_x = 7
             else:
@@ -699,7 +699,7 @@ async def trio(ctx, incount):
             c1_index = (int(c1[1]) - 1) * 7 + int(c1_x) - 1
             c2_index = (int(c2[1]) - 1) * 7 + int(c2_x) - 1
             c3_index = (int(c3[1]) - 1) * 7 + int(c3_x) - 1
-            # if conti(c1_index,c2_index,c3_index) and eval(str(feld[c1_index]) + "*" +str(feld[c2_index]) + str(comb[3]) + str(feld[c3_index])) == such:
+             if conti(c1_index,c2_index,c3_index) and eval(str(feld[c1_index]) + "*" +str(feld[c2_index]) + str(comb[3]) + str(feld[c3_index])) == such:
             if conti(c1_index, c2_index, c3_index):
                 if feld[c1_index] * feld[c2_index] + feld[c3_index] == such:
                     antwort = "%s*%s+%s=%s" % (
@@ -798,12 +798,12 @@ async def trio(ctx, incount):
 
             feett = [True, None]
             if multiple != "":
-                # print("COMBOCHECK")
-                # print(str(msg.content)[0:8])
-                # print(str(msg.content)[9:])
+                 print("COMBOCHECK")
+                 print(str(msg.content)[0:8])
+                 print(str(msg.content)[9:])
                 fetz = combocheck(str(msg.content)[0:8])
                 feett = combocheck(str(msg.content)[9:])
-                # print("PASSED")
+                 print("PASSED")
             else:
                 fetz = combocheck(msg.content)
 
@@ -849,10 +849,10 @@ async def trio(ctx, incount):
             await ctx.send("**😔 no solution sent in time!**")
             count -= 1
 
-    # await ctx.send("*:checkered_flag:  :ribbon:  FINISHED  :ribbon:  :checkered_flag:*")
-    # await ctx.send("**RANKING:**")
-    # for key in punkte:
-    #    await ctx.send("<@%s>: %s points" % (key,punkte[key]))
+     await ctx.send("*:checkered_flag:  :ribbon:  FINISHED  :ribbon:  :checkered_flag:*")
+     await ctx.send("**RANKING:**")
+     for key in punkte:
+        await ctx.send("<@%s>: %s points" % (key,punkte[key]))
 
     list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
     list.reverse()
@@ -880,9 +880,9 @@ async def trio(ctx, incount):
     embed.add_field(name="RANKING:", value=value, inline=False)
     await ctx.send(embed=embed)
 
-    # print(sorted_dict) # {1: 1, 3: 4, 2: 9}
-    # for key in sorted_dict:
-    #    await ctx.send("<@%s>: %s points" % (key,punkte[key]))
+     print(sorted_dict)  {1: 1, 3: 4, 2: 9}
+     for key in sorted_dict:
+        await ctx.send("<@%s>: %s points" % (key,punkte[key]))
 
     time.sleep(10)
 
@@ -903,9 +903,9 @@ mac_running = False
 @bot.command(name="mac", description="play a nice game of mirroring and complementing")
 @commands.guild_only()
 async def mac(ctx, frange):
-    # if str(ctx.message.channel.id) != "802483764659355668":
-    #    await ctx.send("this feature is currently in test-only mode :(")
-    #    return
+     if str(ctx.message.channel.id) != "802483764659355668":
+        await ctx.send("this feature is currently in test-only mode :(")
+        return
 
     try:
         frange = int(frange)
@@ -986,8 +986,8 @@ async def mac(ctx, frange):
     progress = 1
 
     def check(msg):
-        # CHANGE WHEN TMP CHANNEL
-        # and msg.content == str(chain[progress])
+         CHANGE WHEN TMP CHANNEL
+         and msg.content == str(chain[progress])
         return msg.channel == ctx.channel
 
     correct = True
@@ -1033,10 +1033,10 @@ async def mac(ctx, frange):
                     text = ":inbox_tray:   complement: **%i**" % chain[progress - 1]
 
                     embed = discord.Embed(color=0xF1A90F, description=text)
-                    # embed.add_field(name="", value=text, inline=False)
+                     embed.add_field(name="", value=text, inline=False)
                     await ctx.send(embed=embed)
 
-            ###
+            
 
             msg = await bot.wait_for("message", check=check, timeout=20)
 
@@ -1066,10 +1066,10 @@ async def mac(ctx, frange):
         except asyncio.TimeoutError:
             break
 
-            ###
+            
 
-    # await ctx.send("*:checkered_flag:  :ribbon:  FINISHED  :ribbon:  :checkered_flag:*")
-    # await ctx.send("**RANKING:**")
+     await ctx.send("*:checkered_flag:  :ribbon:  FINISHED  :ribbon:  :checkered_flag:*")
+     await ctx.send("**RANKING:**")
 
     list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
     list.reverse()
@@ -1129,14 +1129,14 @@ async def pppkkk(ctx):
     channel = discord.utils.get(ctx.guild.channels, name="pipapo-tmp")
     ctx.channel = channel
 
-    # SETUP
+     SETUP
 
     embed = discord.Embed(
         title="pi-pa-po-ki-ka",
         color=0xF1A90F,
         description="pi: **2**\npa: **3**\n po: **5**\nki: **7**\nka: **11**",
     )
-    # embed.add_field(name="_", value="_", inline=True)
+     embed.add_field(name="_", value="_", inline=True)
     await ctx.send(embed=embed)
 
     chain = []
@@ -1165,7 +1165,7 @@ async def pppkkk(ctx):
     def check(msg):
         return msg.channel == ctx.channel and msg.author.id not in ban
 
-    # correct = True
+     correct = True
 
     await bot.change_presence(activity=discord.Game(name="pi-pa-po"))
 
@@ -1176,7 +1176,7 @@ async def pppkkk(ctx):
 
         captcha = random.randint(1, 50)
 
-        # AND FALSE TO DISABLE
+         AND FALSE TO DISABLE
         if captcha == 5 and progress != 1 and False:
             r = str(random.randint(123, 123456))
 
@@ -1265,7 +1265,7 @@ async def pppkkk(ctx):
                 embed = discord.Embed(
                     title="Number: %s" % str(progress), color=0xF1A90F
                 )
-                # embed.add_field(name=">" ,value = "Number: **%s**" % str(progress), inline=False)
+                 embed.add_field(name=">" ,value = "Number: **%s**" % str(progress), inline=False)
                 await ctx.send(embed=embed)
 
         except:
@@ -1337,12 +1337,12 @@ async def help(ctx):
     )
 
     embed = discord.Embed(title="Commands:", description=text, color=0xF1A90F)
-    # embed.add_field(name="", value="undefined", inline=False)
+     embed.add_field(name="", value="undefined", inline=False)
     await ctx.send(embed=embed)
 
-    # await ctx.send("> Available commands:\n%sprefix [prefix] : change the prefix for the bot (requires admin role)\n%sset [\"class1, class2, class3\"] [grade] : set your classes and your grade (example: `%sset \"3m1, 5Ph1, 2mu1\" 12`), watch out for the quotation marks!\n%svplan : get the current vertretungsplan for your set classes and grades" % (prefix,prefix,prefix,prefix))
-    # await ctx.send("> Available commands:\n%sset [\"class1, class2, class3\"] [grade] : set your classes and your grade (example: `%sset \"3m1, 5Ph1, 2mu1\" 12`), watch out for the quotation marks!\n%svplan : get the current vertretungsplan for your set classes and grades\n%strio [n] : play n rounds of trio (in new channel!)\n%smac [100,1000,10000] : play mirroring and complementing (in new channel!)" % (prefix,prefix,prefix,prefix,prefix))
-    # await ctx.send("" % (prefix,prefix,prefix,prefix,prefix))
+     await ctx.send("> Available commands:\n%sprefix [prefix] : change the prefix for the bot (requires admin role)\n%sset [\"class1, class2, class3\"] [grade] : set your classes and your grade (example: `%sset \"3m1, 5Ph1, 2mu1\" 12`), watch out for the quotation marks!\n%svplan : get the current vertretungsplan for your set classes and grades" % (prefix,prefix,prefix,prefix))
+     await ctx.send("> Available commands:\n%sset [\"class1, class2, class3\"] [grade] : set your classes and your grade (example: `%sset \"3m1, 5Ph1, 2mu1\" 12`), watch out for the quotation marks!\n%svplan : get the current vertretungsplan for your set classes and grades\n%strio [n] : play n rounds of trio (in new channel!)\n%smac [100,1000,10000] : play mirroring and complementing (in new channel!)" % (prefix,prefix,prefix,prefix,prefix))
+     await ctx.send("" % (prefix,prefix,prefix,prefix,prefix))
 
 
 @bot.command(name="ban")
@@ -1387,8 +1387,8 @@ async def suggest(ctx, *args):
         sugg += x
         sugg += " "
     channel = bot.get_channel(808305618733498410)
-    # TEST CHANNEL
-    # channel = bot.get_channel(802483764659355668)
+     TEST CHANNEL
+     channel = bot.get_channel(802483764659355668)
     sugg = ("**by %s:**\n\n" % ctx.author.mention) + sugg
     embed = discord.Embed(title="New Suggestion", description=sugg, color=0xF1A90F)
     message = await channel.send(embed=embed)
