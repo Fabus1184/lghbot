@@ -6,7 +6,7 @@ async def print_help(bot, ctx):
     s = bot.get_channel(config.config['suggest-channel'])
 
     text = """
-    > **%sset [\"class1, class2, class3, ... \"] [grade]** : set your classes and your grade\n
+    > **%sset \"class1, class2, class3, ... \" grade** : set your classes and your grade\n
     (example: `%sset \"3m1, 5Ph1, 2mu1\" 12`), watch out for the quotation marks!\n
     > **%sget** : get your set classes and grade\n
     > **%ssuggest [text]** : suggest something to %s\n

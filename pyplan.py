@@ -34,10 +34,10 @@ def prettyprint():
 
     from prettytable import PrettyTable
     pt = PrettyTable()
-    # = subprocess.run(['pdfgrep', "-i", ' ' ,"plan.pdf"],stdout=subprocess.PIPE)
-    x = subprocess.check_output('pdfgrep  -i " " plan.pdf | grep -v "Landesgymnasium" | grep -v "Schwäbisch" | grep -v "Standard" | grep -v "(Raum)"', shell=True, text=True)
+    # = subprocess.run(['pdfgrep', "-i", ' ' ,"res/plan.pdf"],stdout=subprocess.PIPE)
+    x = subprocess.check_output('pdfgrep  -i " " res/plan.pdf | grep -v "Landesgymnasium" | grep -v "Schwäbisch" | grep -v "Standard" | grep -v "(Raum)"', shell=True, text=True)
 
-    #pdfgrep  -i " " plan.pdf | grep -v "Landesgymnasium" | grep -v "Schwäbisch" | grep -v "Standard" | grep -v "(Raum)"
+    #pdfgrep  -i " " res/plan.pdf | grep -v "Landesgymnasium" | grep -v "Schwäbisch" | grep -v "Standard" | grep -v "(Raum)"
 
     #x = x.stdout.decode("utf-8").split("\n")
 
@@ -188,7 +188,7 @@ def main():
                         else:
                             continue
                     file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                    path = "plan.pdf"
+                    path = "res/plan.pdf"
                     with open(path, 'wb') as f:
                         f.write(file_data)
 

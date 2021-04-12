@@ -1,4 +1,6 @@
 {
+"prefix": "-",
 "ban-users": "administrator",
-"suggest-channel": 831141760289210391
+"suggest-channel": 831141760289210391,
+"general-error-message": "kaputt"
 }

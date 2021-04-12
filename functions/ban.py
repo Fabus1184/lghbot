@@ -12,7 +12,7 @@ async def wegban(ctx, id):
     if id == -1:
         return
 
-    bandb = TinyDB("ban.db")
+    bandb = TinyDB("res/db/ban.db")
 
     if bandb.search(where(str(ctx.guild.id)) == str(id)) == []: 
         bandb.insert({ "%s" % str(ctx.guild.id) : "%s" % str(id) })
@@ -28,7 +28,7 @@ async def pardon(ctx, id):
     if id == -1:
         return
 
-    bandb = TinyDB("ban.db")
+    bandb = TinyDB("res/db/ban.db")
 
     if bandb.search(where(str(ctx.guild.id)) == str(id)) != []: 
         bandb.remove(where(str(ctx.guild.id)) == id)     
@@ -39,5 +39,5 @@ async def pardon(ctx, id):
     return
 
 def isbanned(ctx, id):
-    bandb = TinyDB("ban.db")
+    bandb = TinyDB("res/db/ban.db")
     return bandb.search(where(str(ctx.guild.id)) == str(id)) != []

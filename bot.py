@@ -22,7 +22,7 @@ from tinydb import Query, TinyDB, where
 import tinydb
 from num2words import num2words
 
-from functions import ban, config, suggest, help
+from functions import ban, config, suggest, help, set, get
 
 def valid(input):
     input = input.split(" ")
@@ -65,33 +65,16 @@ def conti(c1, c2, c3):
         return True
     return False
 
-
-with open("config", "r") as f:
-    a = f.readline()
-    waittimeout = int(a[0:2])
-    type_timeout = int(a[2:4])
-    print(waittimeout)
-    print(type_timeout)
-    f.close()
-
-
 count = 0
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-db = TinyDB("classes.db")
-
-leaderboard = TinyDB("leaderboard.db")
+leaderboard = TinyDB("res/db/leaderboard.db")
 
 trio_double = 4
 
-prefix = "-"
-
-
-general_error_message = "%s this didn't work, please check your syntax."
-
-bot = commands.Bot(command_prefix=prefix, help_command=None)
+bot = commands.Bot(command_prefix=config.config['prefix'], help_command=None)
 
 
 def to_lb(id, points, category):
@@ -329,200 +312,21 @@ async def stats(ctx):
 @bot.command(
     name="set", description='set classes and grade, like "3m1, 2mu1, 3bio1" 12 etc.'
 )
-async def settz(ctx, classes, grade):
-    try:
-        if not (classes and grade):
-            await ctx.send(
-                "%s, please set classes and grade as shown in %shelp"
-                % (ctx.message.author.mention, ctx.prefix)
-            )
-            return
-        if not db.search(Query().id == ctx.message.author.id):
-            classes = str(classes).replace(" ", "")
-            db.insert(
-                {"id": ctx.message.author.id, "classes": str(classes), "grade": (grade)}
-            )
-            await ctx.send(
-                "%s updated classes: %s"
-                % (
-                    ctx.message.author.mention,
-                    db.search(Query().id == ctx.message.author.id)[0]["classes"],
-                )
-            )
-        else:
-            db.remove(Query().id == ctx.message.author.id)
-            classes = str(classes).replace(" ", "")
-            db.insert(
-                {"id": ctx.message.author.id, "classes": str(classes), "grade": (grade)}
-            )
-            await ctx.send(
-                "%s updated classes: %s"
-                % (
-                    ctx.message.author.mention,
-                    db.search(Query().id == ctx.message.author.id)[0]["classes"],
-                )
-            )
-    except Exception:
-        await ctx.send(str(general_error_message) % ctx.message.author.mention)
-
+async def a(ctx, classes, grade):
+    await set.sset(ctx, classes, grade)
 
 @bot.command(name="get", description="get set classes")
-async def get(ctx):
-    try:
-        if not db.search(Query().id == ctx.message.author.id):
-            await ctx.send("%s you haven't set any classes yet" % ctx.author.mention)
-            return
-        else:
-            gett = db.search(Query().id == ctx.message.author.id)
-            await ctx.send(
-                str(
-                    "%s\nclasses: `"
-                    + str(gett[0]["classes"])
-                    + "`\ngrade: `"
-                    + str(gett[0]["grade"])
-                    + "`"
-                )
-                % ctx.author.mention
-            )
-    except Exception:
-        await ctx.send(str(general_error_message) % ctx.message.author.mention)
-
+async def b(ctx):
+    await get.gget(ctx)
 
 @bot.command(
     name="vplan", description="get current vertretungsplan for your defined classes"
 )
 async def vplan(ctx):
-    try:
-        classes = db.search(Query().id == ctx.message.author.id)[0]["classes"]
-        if not classes:
-            await ctx.send(
-                "%s, please set your desired classes first!"
-                % ctx.message.author.mention
-            )
-            return
-        grade = db.search(Query().id == ctx.message.author.id)[0]["grade"]
-        process = Popen(["python3", "pyplan.py", str(classes), str(grade)], stdout=PIPE)
-        (output, err) = process.communicate()
-        exit_code = process.wait()
-        process = Popen(["pdfgrep", "-i", "Standard", "plan.pdf"], stdout=PIPE)
-        (datum, err) = process.communicate()
-        datum = datum.decode("UTF-8")
-        exit_code = process.wait()
-        datum = datum.split("\n")[0][18:]
-
-        text = output.decode("UTF-8")
-
-        channel = await ctx.message.author.create_dm()
-
-        if len(output.decode("UTF-8")) >= 2000:
-            i = 0
-            text1 = ""
-            text2 = ""
-            for x in text.split("\n"):
-                if i < 17:
-                    text1 += x
-                    text1 += "\n"
-                else:
-                    text2 += x
-                    text2 += "\n"
-                i += 1
-            await ctx.send(
-                "%s your vplan is too long, sending as dm" % ctx.message.author.mention
-            )
-            await channel.send(
-                "%s, here is your current :calendar_spiral: Vertretungsplan **(%s)**: \n```\n%s```"
-                % (ctx.message.author.mention, datum, text1)
-            )
-            await channel.send("```\n%s```" % text2)
-        else:
-            dm = False
-            for x in str(text).split("\n"):
-                if len(str(x)) > 104:
-                    dm = True
-            print(dm)
-            if dm:
-                await ctx.send(
-                    "%s your vplan is too long, sending as dm"
-                    % ctx.message.author.mention
-                )
-                await channel.send(
-                    "%s, here is your current :calendar_spiral: Vertretungsplan **(%s)**: \n```\n%s```"
-                    % (ctx.message.author.mention, datum, text)
-                )
-            else:
-                await ctx.send(
-                    "%s, here is your current :calendar_spiral: Vertretungsplan **(%s)**: \n```\n%s```"
-                    % (ctx.message.author.mention, datum, text)
-                )
-
-    except Exception:
-        await ctx.send(str(general_error_message) % ctx.message.author.mention)
-
-
-@bot.command(name="speedtest", description="do speedtest")
-@commands.guild_only()
-@commands.has_permissions(manage_webhooks=True)
-async def test(ctx):
-    try:
-        await ctx.send("probing internet speed, please stand by....")
-        process = Popen(["speedtest"], stdout=PIPE)
-        (output, err) = process.communicate()
-        exit_code = process.wait()
-        await ctx.send("```\n%s```" % output.decode("UTF-8").replace("..", ""))
-    except Exception:
-        await ctx.send(str(general_error_message) % ctx.message.author.mention)
-
-
-@bot.command(
-    name="set_type_timeout", description="set the timeout when typing in trio game"
-)
-@commands.guild_only()
-@commands.has_permissions(manage_webhooks=True)
-async def stt(ctx, arg):
-    global type_timeout
-    try:
-        if len(arg) > 2:
-            raise Exception
-        arg = int(arg)
-    except Exception:
-        await ctx.send("%s invalid number" % ctx.message.author.mention)
-        return
-
-    with open("config", "w") as f:
-        f.write(str(waittimeout) + str(arg))
-
-    type_timeout = arg
-
-    await ctx.send("type timeout changed to %s" % type_timeout)
-
-
-@bot.command(
-    name="set_wait_timeout",
-    description="set the timeout when waiting for a found combination in trio game",
-)
-@commands.guild_only()
-@commands.has_permissions(manage_webhooks=True)
-async def swt(ctx, arg):
-    global waittimeout
-    try:
-        if len(arg) > 2:
-            raise Exception
-        arg = int(arg)
-    except Exception:
-        await ctx.send("%s invalid number" % ctx.message.author.mention)
-        return
-
-    with open("config", "w") as f:
-        f.write(str(arg) + str(type_timeout))
-
-    waittimeout = arg
-
-    await ctx.send("wait timeout changed to %s" % waittimeout)
+    vplan.vplan(ctx)
 
 
 trio_running = False
-
-
 @bot.command(name="trio", description="play a game of trio")
 @commands.guild_only()
 async def trio(ctx, incount):
@@ -575,16 +379,16 @@ async def trio(ctx, incount):
 
 
     try:
-        os.remove("output.mp3")
+        os.remove("res/output.mp3")
 
-        musik = ["music1.mp3", "music2.mp3", "music3.mp3"]
+        musik = ["res/music1.mp3", "res/music2.mp3", "res/music3.mp3"]
 
         random.shuffle(musik)
 
         music = musik * 7
 
         os.system(
-            'ffmpeg -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy output.mp3'
+            'ffmpeg -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/output.mp3'
             % (
                 music[0],
                 music[1],
@@ -606,7 +410,7 @@ async def trio(ctx, incount):
     try:
         voice_channel = ctx.author.voice.channel
         vc = await voice_channel.connect()
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("output.mp3"))
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("res/output.mp3"))
         vc.play(source)
     except:
         pass
@@ -851,8 +655,6 @@ async def trio(ctx, incount):
 
 
 mac_running = False
-
-
 @bot.command(name="mac", description="play a nice game of mirroring and complementing")
 @commands.guild_only()
 async def mac(ctx, frange):
@@ -1047,8 +849,6 @@ async def mac(ctx, frange):
 
 
 pipapo = False
-
-
 @bot.command(name="pipapo", description="play pi-pa-po-ki-ka")
 @commands.guild_only()
 async def pppkkk(ctx):
