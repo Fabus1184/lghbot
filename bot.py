@@ -1,4 +1,5 @@
 import asyncio
+from functions.help import print_help
 import glob
 import json
 import math
@@ -21,6 +22,7 @@ from tinydb import Query, TinyDB, where
 import tinydb
 from num2words import num2words
 
+from functions import ban, config, suggest, help
 
 def valid(input):
     input = input.split(" ")
@@ -72,15 +74,6 @@ with open("config", "r") as f:
     print(type_timeout)
     f.close()
 
-ban = []
-
-with open("ban", "r") as f:
-    for x in f.readlines():
-        if x.replace("\n", ""):
-            ban.append(x.replace("\n", ""))
-
-print("BAN:")
-print(ban)
 
 count = 0
 
@@ -1251,89 +1244,24 @@ async def pppkkk(ctx):
 @bot.command(name="help")
 @commands.guild_only()
 async def help(ctx):
-
-    prefix = ctx.prefix
-    s = bot.get_channel(808305618733498410)
-
-    text = """
-    > **%sset [\"class1, class2, class3, ... \"] [grade]** : set your classes and your grade\n
-    (example: `%sset \"3m1, 5Ph1, 2mu1\" 12`), watch out for the quotation marks!\n
-    > **%sget** : get your set classes and grade\n
-    > **%ssuggest [text]** : suggest something to %s\n
-    > **%svplan** : get the current vertretungsplan for your set classes and grades\n
-    > **%strio [n]** : play n rounds of trio (in new channel!)\n
-    > **%smac [100,1000,10000]** : play mirroring and complementing (in new channel!)\n
-    > **%sleaderboard** or **lb** : show the server leaderboard\n
-    > **%sstats** : show personal stats\n
-    > **%spipapo** : play pi-pa-po\n
-    **LGH Bot** by <@432116634807959554>
-    """ % (
-        prefix,
-        prefix,
-        prefix,
-        prefix,
-        s.mention,
-        prefix,
-        prefix,
-        prefix,
-        prefix,
-        prefix,
-        prefix,
-    )
-
-    embed = discord.Embed(title="Commands:", description=text, color=0xF1A90F)
-    await ctx.send(embed=embed)
-
-
+    await print_help(bot, ctx)
 
 @bot.command(name="ban")
 @commands.guild_only()
-@commands.has_permissions(manage_webhooks=True)
-async def wegban(ctx, mention):
-    global ban
-    id = mention.replace("<", "").replace(">", "").replace("@", "").replace("!", "")
-    ban.append(id)
-    with open("ban", "a") as f:
-        f.write("\n%s" % id)
-    await ctx.send("%s has been banned from suggesting" % mention)
-
+@commands.has_permissions(administrator=True)
+async def bann(ctx, mention):
+    await ban.wegban(ctx, mention)
 
 @bot.command(name="pardon")
 @commands.guild_only()
-@commands.has_permissions(manage_webhooks=True)
+@commands.has_permissions(administrator=True)
 async def pardon(ctx, mention):
-    global ban
-    id = mention.replace("<", "").replace(">", "").replace("@", "").replace("!", "")
-    ban.remove(id)
-    with open("ban", "w") as f:
-        for x in ban:
-            f.write("\n%s" % id)
-    await ctx.send("%s has been unbanned from suggesting" % mention)
-
+    await ban.pardon(ctx, mention)
 
 @bot.command(name="suggest")
 @commands.guild_only()
-async def suggest(ctx, *args):
-    print(ctx.message.author.id)
-    print(ban)
-    if str(ctx.message.author.id) in ban:
-        await ctx.send(
-            "%s unfortunately you are banned from using this command"
-            % ctx.message.author.mention
-        )
-        return
-
-    sugg = ""
-    for x in args:
-        sugg += x
-        sugg += " "
-    channel = bot.get_channel(808305618733498410)
-    sugg = ("**by %s:**\n\n" % ctx.author.mention) + sugg
-    embed = discord.Embed(title="New Suggestion", description=sugg, color=0xF1A90F)
-    message = await channel.send(embed=embed)
-    await message.add_reaction("\N{THUMBS UP SIGN}")
-    await message.add_reaction("\N{THUMBS DOWN SIGN}")
-
+async def a(ctx, *args):
+    await suggest.suggestion(bot, ctx, *args)
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -1341,6 +1269,5 @@ async def on_command_error(ctx, error):
         await ctx.send(
             ("%s an error occured: %s") % (ctx.message.author.mention, str(error))
         )
-
 
 bot.run(TOKEN)
