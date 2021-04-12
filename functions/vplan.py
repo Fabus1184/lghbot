@@ -74,4 +74,4 @@ async def vplan(ctx):
                 )
 
     except Exception:
-        await ctx.send(str(general_error_message) % ctx.message.author.mention)
+        await ctx.send("%s, %s" % (config.config['general-error-message'] % ctx.message.author.mention))
