@@ -15,7 +15,3 @@ def id_from_mention(ctx, mention):
         return -1
 
     return id
-
-def perm(name):
-    if name == "administrator":
-        return discord.Permissions.administrator
