@@ -4,7 +4,7 @@ import time
 import random
 from functions import tools, config
 
-mac_running = False
+mac_running = []
 
 async def mac(ctx, frange, bot):
     global mac_running
@@ -19,14 +19,14 @@ async def mac(ctx, frange, bot):
         )
         return
 
-    global mac_running
-    if mac_running:
+    if ctx.guild.id in mac_running:
         await ctx.send(
             "%s ❌ theres already a game running!" % ctx.message.author.mention
         )
         return
 
-    mac_running = True
+    mac_running.append(ctx.guild.id)
+
     await bot.change_presence(activity=discord.Game(name="mirroring and complementing"))
 
     punkte = []
@@ -181,7 +181,7 @@ async def mac(ctx, frange, bot):
             medal = ":third_place:"
         value += "%s <@%s>: %s points\n" % (medal, x, punkte[ids.index(x)])
         if len(list) > 1:
-            tools.to_lb(x, punkte[ids.index(x)], "mac_%s" % frange)
+            tools.to_lb(ctx, x, punkte[ids.index(x)], "mac_%s" % frange)
         place += 1
 
     embed = discord.Embed(
@@ -194,4 +194,4 @@ async def mac(ctx, frange, bot):
     time.sleep(10)
     await channel.delete()
     await bot.change_presence(status=discord.Status.online)
-    mac_running = False
+    mac_running.remove(ctx.guild.id)

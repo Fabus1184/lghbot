@@ -5,17 +5,19 @@ import random
 from num2words import num2words
 from functions import tools, config
 
-pipapo = False
+pipapo = []
 
 async def pppkkk(ctx, bot):
     global pipapo
     
     ban = []
-    if pipapo:
+    if ctx.guild.id in pipapo:
         await ctx.send(
             "%s ❌ theres already a game running!" % ctx.message.author.mention
         )
         return
+
+    pipapo.append(ctx.guild.id)
 
     pipapo = True
     await bot.change_presence(activity=discord.Game(name="pi-pa-po-ki-ka"))
@@ -180,7 +182,7 @@ async def pppkkk(ctx, bot):
             medal = ":third_place:"
         value += "%s <@%s>: %s points\n" % (medal, x, punkte[ids.index(x)])
         if len(list) > 1 or len(ban) > 0:
-            tools.to_lb(x, punkte[ids.index(x)], "pipapo")
+            tools.to_lb(ctx, x, punkte[ids.index(x)], "pipapo")
         place += 1
 
     embed = discord.Embed(
@@ -193,4 +195,4 @@ async def pppkkk(ctx, bot):
     time.sleep(10)
     await channel.delete()
     await bot.change_presence(status=discord.Status.online)
-    pipapo = False
+    pipapo.remove(ctx.guild.id)

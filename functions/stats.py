@@ -5,7 +5,7 @@ import tinydb
 from sortedcontainers import SortedDict
 
 async def stats(ctx):
-    leaderboard = TinyDB("res/db/leaderboard.db")
+    leaderboard = TinyDB("res/db/%i/leaderboard.db" % ctx.guild.id)
     trio = ""
     mac100 = ""
     mac1000 = ""
@@ -34,15 +34,15 @@ async def stats(ctx):
         pipapo += str(x["points"])
 
     if not trio:
-        trio = "zerrrrooo"
+        trio = "0"
     if not mac100:
-        mac100 = "zerrrrooo"
+        mac100 = "0"
     if not mac1000:
-        mac1000 = "zerrrrooo"
+        mac1000 = "0"
     if not mac10000:
-        mac10000 = "zerrrrooo"
+        mac10000 = "0"
     if not pipapo:
-        pipapo = "zerrrrooo"
+        pipapo = "0"
 
     trio += " points"
     mac100 += " points"
@@ -53,7 +53,7 @@ async def stats(ctx):
     embed = discord.Embed(
         title="Personal Stats:",
         color=0xF1A90F,
-        description="*only games with more than one player are counted*",
+        description="*Only games with more than one player are counted*",
     )
     embed.add_field(name="User:", value="%s" % ctx.author.mention, inline=False)
     embed.add_field(name="Trio:", value=trio, inline=False)

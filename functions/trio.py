@@ -6,10 +6,11 @@ import random
 import os
 from functions import config, tools
 
-trio_running = False
+trio_running = []
 
 async def trio(ctx, incount, bot):
     global trio_running
+
     count = 0
     try:
         count = int(incount)
@@ -20,12 +21,13 @@ async def trio(ctx, incount, bot):
         await ctx.send("%s ❌ noooo >:(" % ctx.message.author.mention)
         return
 
-    global trio_running
-    if trio_running:
+    if ctx.guild.id in trio_running:
         await ctx.send("%s some game is already running" % ctx.message.author.mention)
         return
 
-    trio_running = True
+    trio_running.append(ctx.guild.id)
+
+
     await bot.change_presence(activity=discord.Game(name="Trio"))
 
     category = bot.get_channel(config.config['games-category'])
@@ -66,7 +68,7 @@ async def trio(ctx, incount, bot):
         music = musik * 7
 
         os.system(
-            'ffmpeg -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/output.mp3'
+            'ffmpeg -logelevel quiet -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/output.mp3'
             % (
                 music[0],
                 music[1],
@@ -82,7 +84,6 @@ async def trio(ctx, incount, bot):
         )
 
     except:
-        print("ZAPPZARAPP ERROR MIT MUSIK KAPUTT")
         pass
 
     try:
@@ -120,7 +121,6 @@ async def trio(ctx, incount, bot):
 
         def combocheck(m):
             if not tools.valid(m):
-                print("NOT tools.valid")
                 return [False, None]
 
             comb = m.split(" ")
@@ -308,7 +308,7 @@ async def trio(ctx, incount, bot):
             medal = ":third_place:"
         value += "%s <@%s>: %s points\n" % (medal, x, punkte[ids.index(x)])
         if len(list) > 1:
-            tools.to_lb(x, punkte[ids.index(x)], "trio")
+            tools.to_lb(ctx, x, punkte[ids.index(x)], "trio")
         place += 1
 
     embed = discord.Embed(
@@ -329,4 +329,4 @@ async def trio(ctx, incount, bot):
     except:
         pass
 
-    trio_running = False
+    trio_running.remove(ctx.guild.id)

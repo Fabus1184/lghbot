@@ -8,7 +8,6 @@ from functions import ban, config, suggest, help, set, get, tools, leaderboard, 
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-
 bot = commands.Bot(command_prefix=config.config['prefix'], help_command=None)
 
 @bot.command(name="leaderboard", description="show leaderboard")
@@ -78,5 +77,13 @@ async def on_command_error(ctx, error):
         await ctx.send(
             ("%s an error occured: %s") % (ctx.message.author.mention, str(error))
         )
+
+@bot.event
+async def on_ready():
+    for s in bot.guilds:
+        try:
+            os.mkdir("res/db/%i" % s.id)
+        except FileExistsError:
+            pass
 
 bot.run(TOKEN)

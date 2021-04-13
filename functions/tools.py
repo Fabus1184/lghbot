@@ -17,7 +17,7 @@ def id_from_mention(ctx, mention):
         ctx.send("Not a valid user!")
         return -1
 
-    return id
+    return int(id)
 
 def valid(input):
     input = input.split(" ")
@@ -59,10 +59,8 @@ def conti(c1, c2, c3):
         return True
     return False
 
-
-
-def to_lb(id, points, category):
-    leaderboard = TinyDB("res/db/leaderboard.db")
+def to_lb(ctx, id, points, category):
+    leaderboard = TinyDB("res/db/%i/leaderboard.db" % ctx.guild.id)
     tmp = leaderboard.search((where("id") == id) & (where("category") == category))
     if tmp:
         leaderboard.update(
