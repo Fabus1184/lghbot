@@ -1,6 +1,7 @@
 import asyncio
 import discord
 import time
+import random
 
 mac_running = False
 
