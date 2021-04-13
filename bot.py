@@ -1,24 +1,9 @@
 import asyncio
 from functions.help import print_help
 import glob
-import json
-import math
 import os
-import random
-import subprocess
-import traceback
-import collections
-from sortedcontainers import SortedDict
-from subprocess import PIPE, Popen
-from prettytable import PrettyTable, ALL
 import discord
-import requests
-from discord.ext import commands, tasks
-from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-from tinydb import Query, TinyDB, where
-import tinydb
-from num2words import num2words
 from functions import ban, config, suggest, help, set, get, tools, leaderboard, stats, trio, mac, pppkkk, vplan
 
 load_dotenv()
@@ -58,9 +43,8 @@ async def t(ctx, incount):
 @bot.command(name="mac", description="play a nice game of mirroring and complementing")
 @commands.guild_only()
 async def m(ctx, frange):
-    await mac.mac(ctx.frange, bot)
+    await mac.mac(ctx, frange, bot)
 
-pipapo = False
 @bot.command(name="pipapo", description="play pi-pa-po-ki-ka")
 @commands.guild_only()
 async def pppkkk(ctx):
