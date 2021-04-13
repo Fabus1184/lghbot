@@ -2,7 +2,7 @@ import asyncio
 import discord
 import time
 import random
-from functions import tools
+from functions import tools, config
 
 mac_running = False
 
@@ -31,7 +31,7 @@ async def mac(ctx, frange, bot):
 
     punkte = []
     ids = []
-    category = bot.get_channel(802864419902062612)
+    category = bot.get_channel(config.config['games-category'])
     await ctx.message.guild.create_text_channel("mac-tmp", category=category)
     channel = discord.utils.get(ctx.guild.channels, name="mac-tmp")
     ctx.channel = channel

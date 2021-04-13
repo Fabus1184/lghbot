@@ -1,3 +1,4 @@
 token.pickle
 credentials.json
 .env
+functions/__pycache__

@@ -1,5 +1,6 @@
 import asyncio
 import discord
+from discord.ext import command
 from prettytable import PrettyTable, ALL
 import time
 import random
@@ -28,7 +29,7 @@ async def trio(ctx, incount, bot):
     trio_running = True
     await bot.change_presence(activity=discord.Game(name="Trio"))
 
-    category = bot.get_channel(802864419902062612)
+    category = bot.get_channel(config.config['games-category'])
     await ctx.message.guild.create_text_channel("trio-tmp", category=category)
     channel = discord.utils.get(ctx.guild.channels, name="trio-tmp")
     ctx.channel = channel

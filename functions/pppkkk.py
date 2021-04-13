@@ -3,7 +3,7 @@ import discord
 import time
 import random
 from num2words import num2words
-from functions import tools
+from functions import tools, config
 
 pipapo = False
 
@@ -22,7 +22,7 @@ async def pppkkk(ctx, bot):
 
     punkte = []
     ids = []
-    category = bot.get_channel(802864419902062612)
+    category = bot.get_channel(config.config['games-category'])
     await ctx.message.guild.create_text_channel("pipapo-tmp", category=category)
     channel = discord.utils.get(ctx.guild.channels, name="pipapo-tmp")
     ctx.channel = channel
