@@ -2,6 +2,7 @@ import asyncio
 import discord
 import time
 import random
+from functions import tools
 
 mac_running = False
 
