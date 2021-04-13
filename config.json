@@ -2,5 +2,8 @@
 "prefix": "-",
 "ban-users": "administrator",
 "suggest-channel": 831141760289210391,
-"general-error-message": "kaputt"
+"general-error-message": "kaputt",
+"trio-double": 4,
+"wait-timeout": 50,
+"type-timeout": 10
 }

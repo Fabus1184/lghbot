@@ -21,296 +21,27 @@ from tinydb import Query, TinyDB, where
 import tinydb
 from num2words import num2words
 
-from functions import ban, config, suggest, help, set, get
-
-def valid(input):
-    input = input.split(" ")
-    if len(input) != 3:
-        return False
-    if not (len(input[0]) == 2 and len(input[1]) == 2 and len(input[2]) == 2):
-        return False
-
-    alphabet = ["a", "b", "c", "d", "e", "f", "g", "A", "B", "C", "D", "E", "F", "G"]
-    numbers = ["1", "2", "3", "4", "5", "6", "7"]
-    if not input[0][0] in alphabet:
-        return False
-    if not input[1][0] in alphabet:
-        return False
-    if not input[2][0] in alphabet:
-        return False
-    if not input[0][1] in numbers:
-        return False
-    if not input[1][1] in numbers:
-        return False
-    if not input[2][1] in numbers:
-        return False
-    return True
-
-
-def conti(c1, c2, c3):
-
-    clist = [c1, c2, c3]
-    clist.sort()
-    (c1, c2, c3) = clist
-
-
-    if c2 == c1 + 1 and c3 == c2 + 1 and c3 // 7 == c1 // 7:
-        return True
-    if c2 == c1 + 8 and c3 == c2 + 8 and c3 // 7 == c1 // 7 + 2:
-        return True
-    if c2 == c1 + 7 and c3 == c2 + 7:
-        return True
-    if c2 == c1 + 6 and c3 == c2 + 6 and c3 // 7 == c1 // 7 + 2:
-        return True
-    return False
-
-count = 0
+from functions import ban, config, suggest, help, set, get, tools, leaderboard, stats
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-leaderboard = TinyDB("res/db/leaderboard.db")
-
-trio_double = 4
-
 bot = commands.Bot(command_prefix=config.config['prefix'], help_command=None)
 
 
-def to_lb(id, points, category):
-    tmp = leaderboard.search((where("id") == id) & (where("category") == category))
-    if tmp:
-        leaderboard.update(
-            {"points": (int(tmp[0]["points"]) + int(points))},
-            (where("id") == id) & (where("category") == category),
-        )
-    else:
-        leaderboard.insert({"id": id, "points": points, "category": category})
-
-
 @bot.command(name="leaderboard", description="show leaderboard")
-async def lb(ctx):
+async def o(ctx):
+    await leaderboard.lb(ctx)
 
-    trio = ""
-    mac100 = ""
-    mac1000 = ""
-    mac10000 = ""
-    pipapo = ""
-
-    ids = []
-    punkte = []
-    for x in leaderboard.search(Query().category == "mac_100"):
-        ids.append(x["id"])
-        punkte.append(x["points"])
-
-    list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
-    list.reverse()
-    if list:
-        for x in range(len(list), 3):
-            list.append(list[len(list) - 1])
-
-        erster = punkte[ids.index(list[0])]
-        zweiter = punkte[ids.index(list[1])]
-        dritter = punkte[ids.index(list[2])]
-        if erster > 1000:
-            erster = (
-                str(erster / 1000)
-                .replace(".", ",")
-                .replace(".", ",")
-                .split("points")[0]
-                + "k"
-            )
-        if zweiter > 1000:
-            zweiter = str(zweiter / 1000).replace(".", ",").split("points")[0] + "k"
-        if dritter > 1000:
-            dritter = str(dritter / 1000).replace(".", ",").split("points")[0] + "k"
-        mac100 += "%s <@%s>: %s points\n" % (":first_place:", list[0], erster)
-        mac100 += "%s <@%s>: %s points\n" % (":second_place:", list[1], zweiter)
-        mac100 += "%s <@%s>: %s points\n" % (":third_place:", list[2], dritter)
-
-    ids = []
-    punkte = []
-    for x in leaderboard.search(Query().category == "mac_1000"):
-        ids.append(x["id"])
-        punkte.append(x["points"])
-
-    list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
-    list.reverse()
-    if list:
-        for x in range(len(list), 3):
-            list.append(list[len(list) - 1])
-
-        erster = punkte[ids.index(list[0])]
-        zweiter = punkte[ids.index(list[1])]
-        dritter = punkte[ids.index(list[2])]
-        if erster > 1000:
-            erster = str(erster / 1000).replace(".", ",").split("points")[0] + "k"
-        if zweiter > 1000:
-            zweiter = str(zweiter / 1000).replace(".", ",").split("points")[0] + "k"
-        if dritter > 1000:
-            dritter = str(dritter / 1000).replace(".", ",").split("points")[0] + "k"
-
-        mac1000 += "%s <@%s>: %s points\n" % (":first_place:", list[0], erster)
-        mac1000 += "%s <@%s>: %s points\n" % (":second_place:", list[1], zweiter)
-        mac1000 += "%s <@%s>: %s points\n" % (":third_place:", list[2], dritter)
-
-    ids = []
-    punkte = []
-    for x in leaderboard.search(Query().category == "mac_10000"):
-        ids.append(x["id"])
-        punkte.append(x["points"])
-
-    list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
-    list.reverse()
-    if list:
-        for x in range(len(list), 3):
-            list.append(list[len(list) - 1])
-
-        erster = punkte[ids.index(list[0])]
-        zweiter = punkte[ids.index(list[1])]
-        dritter = punkte[ids.index(list[2])]
-        if erster > 1000:
-            erster = str(erster / 1000).replace(".", ",").split("points")[0] + "k"
-        if zweiter > 1000:
-            zweiter = str(zweiter / 1000).replace(".", ",").split("points")[0] + "k"
-        if dritter > 1000:
-            dritter = str(dritter / 1000).replace(".", ",").split("points")[0] + "k"
-
-        mac10000 += "%s <@%s>: %s points\n" % (":first_place:", list[0], erster)
-        mac10000 += "%s <@%s>: %s points\n" % (":second_place:", list[1], zweiter)
-        mac10000 += "%s <@%s>: %s points\n" % (":third_place:", list[2], dritter)
-
-    ids = []
-    punkte = []
-    for x in leaderboard.search(Query().category == "trio"):
-        ids.append(x["id"])
-        punkte.append(x["points"])
-
-    list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
-    list.reverse()
-    if list:
-        for x in range(len(list), 3):
-            list.append(list[len(list) - 1])
-
-        erster = punkte[ids.index(list[0])]
-        zweiter = punkte[ids.index(list[1])]
-        dritter = punkte[ids.index(list[2])]
-        if erster > 1000:
-            erster = str(erster / 1000).replace(".", ",").split("points")[0] + "k"
-        if zweiter > 1000:
-            zweiter = str(zweiter / 1000).replace(".", ",").split("points")[0] + "k"
-        if dritter > 1000:
-            dritter = str(dritter / 1000).replace(".", ",").split("points")[0] + "k"
-
-        trio += "%s <@%s>: %s points\n" % (":first_place:", list[0], erster)
-        trio += "%s <@%s>: %s points\n" % (":second_place:", list[1], zweiter)
-        trio += "%s <@%s>: %s points\n" % (":third_place:", list[2], dritter)
-
-    ids = []
-    punkte = []
-    for x in leaderboard.search(Query().category == "pipapo"):
-        ids.append(x["id"])
-        punkte.append(x["points"])
-
-    list = [x for _, x in sorted(zip(punkte, ids), key=lambda pair: pair[0])]
-    list.reverse()
-    if list:
-        for x in range(len(list), 3):
-            list.append(list[len(list) - 1])
-
-        erster = punkte[ids.index(list[0])]
-        zweiter = punkte[ids.index(list[1])]
-        dritter = punkte[ids.index(list[2])]
-        if erster > 1000:
-            erster = str(erster / 1000).replace(".", ",").split("points")[0] + "k"
-        if zweiter > 1000:
-            zweiter = str(zweiter / 1000).replace(".", ",").split("points")[0] + "k"
-        if dritter > 1000:
-            dritter = str(dritter / 1000).replace(".", ",").split("points")[0] + "k"
-
-        pipapo += "%s <@%s>: %s points\n" % (":first_place:", list[0], erster)
-        pipapo += "%s <@%s>: %s points\n" % (":second_place:", list[1], zweiter)
-        pipapo += "%s <@%s>: %s points\n" % (":third_place:", list[2], dritter)
-
-    embed = discord.Embed(
-        title="Server Leaderboard",
-        color=0xF1A90F,
-        description="*only games with more than one player are counted*",
-    )
-    embed.add_field(name="Trio:", value=trio, inline=False)
-    embed.add_field(name="mac 100:", value=mac100, inline=False)
-    embed.add_field(name="mac 1000:", value=mac1000, inline=False)
-    embed.add_field(name="mac 10000:", value=mac10000, inline=False)
-    embed.add_field(name="pi-pa-po:", value=pipapo, inline=False)
-    await ctx.send(embed=embed)
-
-
-bot.command(name="lb", description="show leaderboard")(lb.callback)
-
+@bot.command(name="lb", description="show leaderboard")
+async def k(ctx):
+    await leaderboard.lb(ctx)
 
 @bot.command(name="stats", description="show personal stats")
-async def stats(ctx):
+async def s(ctx):
+    await stats.stats(ctx)
 
-    trio = ""
-    mac100 = ""
-    mac1000 = ""
-    mac10000 = ""
-    pipapo = ""
-
-    for x in leaderboard.search(
-        (Query().category == "mac_100") & (Query().id == ctx.author.id)
-    ):
-        mac100 += str(x["points"])
-    for x in leaderboard.search(
-        (Query().category == "mac_1000") & (Query().id == ctx.author.id)
-    ):
-        mac1000 += str(x["points"])
-    for x in leaderboard.search(
-        (Query().category == "mac_10000") & (Query().id == ctx.author.id)
-    ):
-        mac10000 += str(x["points"])
-    for x in leaderboard.search(
-        (Query().category == "trio") & (Query().id == ctx.author.id)
-    ):
-        trio += str(x["points"])
-    for x in leaderboard.search(
-        (Query().category == "pipapo") & (Query().id == ctx.author.id)
-    ):
-        pipapo += str(x["points"])
-
-    if not trio:
-        trio = "zerrrrooo"
-    if not mac100:
-        mac100 = "zerrrrooo"
-    if not mac1000:
-        mac1000 = "zerrrrooo"
-    if not mac10000:
-        mac10000 = "zerrrrooo"
-    if not pipapo:
-        pipapo = "zerrrrooo"
-
-    trio += " points"
-    mac100 += " points"
-    mac1000 += " points"
-    mac10000 += " points"
-    pipapo += " points"
-
-    embed = discord.Embed(
-        title="Personal Stats:",
-        color=0xF1A90F,
-        description="*only games with more than one player are counted*",
-    )
-    embed.add_field(name="User:", value="%s" % ctx.author.mention, inline=False)
-    embed.add_field(name="Trio:", value=trio, inline=False)
-    embed.add_field(name="mac 100:", value=mac100, inline=False)
-    embed.add_field(name="mac 1000:", value=mac1000, inline=False)
-    embed.add_field(name="mac 10000:", value=mac10000, inline=False)
-    embed.add_field(name="pipapo:", value=pipapo, inline=False)
-    await ctx.send(embed=embed)
-
-
-@bot.command(
-    name="set", description='set classes and grade, like "3m1, 2mu1, 3bio1" 12 etc.'
-)
+@bot.command(name="set", description='set classes and grade, like "3m1, 2mu1, 3bio1" 12 etc.')
 async def a(ctx, classes, grade):
     await set.sset(ctx, classes, grade)
 
@@ -318,20 +49,15 @@ async def a(ctx, classes, grade):
 async def b(ctx):
     await get.gget(ctx)
 
-@bot.command(
-    name="vplan", description="get current vertretungsplan for your defined classes"
-)
+@bot.command(name="vplan", description="get current vertretungsplan for your defined classes")
 async def vplan(ctx):
     vplan.vplan(ctx)
-
 
 trio_running = False
 @bot.command(name="trio", description="play a game of trio")
 @commands.guild_only()
 async def trio(ctx, incount):
-    global trio_double
-    global waittimeout
-    global type_timeout
+    count = 0
     try:
         count = int(incount)
     except Exception:
@@ -427,7 +153,7 @@ async def trio(ctx, incount):
         suchs.append(such)
         search = (
             '🔎 SEARCHING FOR NUMBER: **%d**\n write "s" when you found a combination - you have **%s** seconds '
-            % (such, waittimeout)
+            % (such, config.config['wait-timeout'])
         )
 
 
@@ -440,8 +166,8 @@ async def trio(ctx, incount):
             return m.channel == channel and m.content == "s"
 
         def combocheck(m):
-            if not valid(m):
-                print("NOT VALID")
+            if not tools.valid(m):
+                print("NOT tools.valid")
                 return [False, None]
 
             comb = m.split(" ")
@@ -467,7 +193,7 @@ async def trio(ctx, incount):
             c1_index = (int(c1[1]) - 1) * 7 + int(c1_x) - 1
             c2_index = (int(c2[1]) - 1) * 7 + int(c2_x) - 1
             c3_index = (int(c3[1]) - 1) * 7 + int(c3_x) - 1
-            if conti(c1_index, c2_index, c3_index):
+            if tools.conti(c1_index, c2_index, c3_index):
                 if feld[c1_index] * feld[c2_index] + feld[c3_index] == such:
                     antwort = "%s*%s+%s=%s" % (
                         feld[c1_index],
@@ -523,10 +249,10 @@ async def trio(ctx, incount):
 
         try:
 
-            if type_timeout != 15:
-                type_timeout = 15
+            if config.config['type-timeout'] != 15:
+                config.config['type-timeout'] = 15
 
-            msg = await bot.wait_for("message", check=check, timeout=waittimeout)
+            msg = await bot.wait_for("message", check=check, timeout=config.config['wait-timeout'])
 
             user = msg.author.id
 
@@ -535,9 +261,9 @@ async def trio(ctx, incount):
             remove = False
 
             try:
-                if punkte[ids.index(msg.author.id)] >= trio_double:
+                if punkte[ids.index(msg.author.id)] >= config.config['trio-double']:
                     multiple = "\nyou need 2 combinations!"
-                    type_timeout += 10
+                    config.config['type-timeout'] += 10
                     remove = True
             except:
                 pass
@@ -545,9 +271,9 @@ async def trio(ctx, incount):
             try:
                 await ctx.send(
                     "%s you have ⌚ **%s seconds** to send your solution... %s"
-                    % (msg.author.mention, type_timeout, multiple)
+                    % (msg.author.mention, config.config['type-timeout'], multiple)
                 )
-                msg = await bot.wait_for("message", check=trü, timeout=type_timeout)
+                msg = await bot.wait_for("message", check=trü, timeout=config.config['type-timeout'])
             except asyncio.TimeoutError:
                 await ctx.send(
                     "**%s 😔 no solution sent in time!**" % msg.author.mention
@@ -561,7 +287,7 @@ async def trio(ctx, incount):
                 continue
 
             if remove:
-                type_timeout -= 10
+                config.config['type-timeout'] -= 10
 
             feett = [True, None]
             if multiple != "":
@@ -586,7 +312,7 @@ async def trio(ctx, incount):
 
                 if msg.author.id in ids:
                     punkte[ids.index(msg.author.id)] += 1
-                    if punkte[ids.index(msg.author.id)] == trio_double:
+                    if punkte[ids.index(msg.author.id)] == config.config['trio-double']:
                         await ctx.send(
                             "%s you need 2 combinations from now on!"
                             % (msg.author.mention)
@@ -629,7 +355,7 @@ async def trio(ctx, incount):
             medal = ":third_place:"
         value += "%s <@%s>: %s points\n" % (medal, x, punkte[ids.index(x)])
         if len(list) > 1:
-            to_lb(x, punkte[ids.index(x)], "trio")
+            tools.to_lb(x, punkte[ids.index(x)], "trio")
         place += 1
 
     embed = discord.Embed(
@@ -664,7 +390,7 @@ async def mac(ctx, frange):
             raise Exception
     except:
         await ctx.send(
-            "%s ❌ invalid range! (has to be 100,1000 or 10000)"
+            "%s ❌ intools.valid range! (has to be 100,1000 or 10000)"
             % ctx.message.author.mention
         )
         return
@@ -831,7 +557,7 @@ async def mac(ctx, frange):
             medal = ":third_place:"
         value += "%s <@%s>: %s points\n" % (medal, x, punkte[ids.index(x)])
         if len(list) > 1:
-            to_lb(x, punkte[ids.index(x)], "mac_%s" % frange)
+            tools.to_lb(x, punkte[ids.index(x)], "mac_%s" % frange)
         place += 1
 
     embed = discord.Embed(
@@ -1024,7 +750,7 @@ async def pppkkk(ctx):
             medal = ":third_place:"
         value += "%s <@%s>: %s points\n" % (medal, x, punkte[ids.index(x)])
         if len(list) > 1 or len(ban) > 0:
-            to_lb(x, punkte[ids.index(x)], "pipapo")
+            tools.to_lb(x, punkte[ids.index(x)], "pipapo")
         place += 1
 
     embed = discord.Embed(
