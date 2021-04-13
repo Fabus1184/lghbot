@@ -1,5 +1,4 @@
 import asyncio
-from functions.help import print_help
 import glob
 import os
 import discord
@@ -13,64 +12,64 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 bot = commands.Bot(command_prefix=config.config['prefix'], help_command=None)
 
 @bot.command(name="leaderboard", description="show leaderboard")
-async def o(ctx):
+async def a(ctx):
     await leaderboard.lb(ctx)
 
 @bot.command(name="lb", description="show leaderboard")
-async def k(ctx):
+async def b(ctx):
     await leaderboard.lb(ctx)
 
 @bot.command(name="stats", description="show personal stats")
-async def s(ctx):
+async def c(ctx):
     await stats.stats(ctx)
 
 @bot.command(name="set", description='set classes and grade, like "3m1, 2mu1, 3bio1" 12 etc.')
-async def a(ctx, classes, grade):
+async def d(ctx, classes, grade):
     await set.sset(ctx, classes, grade)
 
 @bot.command(name="get", description="get set classes")
-async def b(ctx):
+async def e(ctx):
     await get.gget(ctx)
 
 @bot.command(name="vplan", description="get current vertretungsplan for your defined classes")
-async def v(ctx):
+async def f(ctx):
     await vplan.vplan(ctx)
 
 @bot.command(name="trio", description="play a game of trio")
 @commands.guild_only()
-async def t(ctx, incount):
+async def g(ctx, incount):
     await trio.trio(ctx,incount, bot)
 
 @bot.command(name="mac", description="play a nice game of mirroring and complementing")
 @commands.guild_only()
-async def m(ctx, frange):
+async def h(ctx, frange):
     await mac.mac(ctx, frange, bot)
 
 @bot.command(name="pipapo", description="play pi-pa-po-ki-ka")
 @commands.guild_only()
-async def pppkkk(ctx):
+async def i(ctx):
     await pppkkk.pppkkk(ctx, bot)
 
 @bot.command(name="help")
 @commands.guild_only()
-async def help(ctx):
-    await print_help(bot, ctx)
+async def j(ctx):
+    await help.print_help(bot, ctx)
 
 @bot.command(name="ban")
 @commands.guild_only()
 @commands.has_permissions(administrator=True)
-async def bann(ctx, mention):
+async def k(ctx, mention):
     await ban.wegban(ctx, mention)
 
 @bot.command(name="pardon")
 @commands.guild_only()
 @commands.has_permissions(administrator=True)
-async def pardon(ctx, mention):
+async def l(ctx, mention):
     await ban.pardon(ctx, mention)
 
 @bot.command(name="suggest")
 @commands.guild_only()
-async def a(ctx, *args):
+async def m(ctx, *args):
     await suggest.suggestion(bot, ctx, *args)
 
 @bot.event

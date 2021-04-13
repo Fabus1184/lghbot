@@ -1,6 +1,5 @@
 import asyncio
 import discord
-from discord.ext import command
 from prettytable import PrettyTable, ALL
 import time
 import random
