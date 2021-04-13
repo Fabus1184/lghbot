@@ -3,7 +3,7 @@ from functions.help import print_help
 import glob
 import os
 import discord
-from discord.ext import command
+from discord.ext import commands
 from dotenv import load_dotenv
 from functions import ban, config, suggest, help, set, get, tools, leaderboard, stats, trio, mac, pppkkk, vplan
 
