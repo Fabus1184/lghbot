@@ -1,10 +1,14 @@
 import asyncio
 import discord
 from prettytable import PrettyTable, ALL
+import time
+import random
+import os
+from functions import config, tools
 
 trio_running = False
 
-async def trio(ctx, incount):
+async def trio(ctx, incount, bot):
     global trio_running
     count = 0
     try:

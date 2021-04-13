@@ -1,9 +1,13 @@
 import asyncio
 import discord
+import time
+import random
+from num2words import num2words
+from functions import tools
 
 pipapo = False
 
-async def pppkkk(ctx):
+async def pppkkk(ctx, bot):
     global pipapo
     
     ban = []

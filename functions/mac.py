@@ -1,9 +1,10 @@
 import asyncio
 import discord
+import time
 
 mac_running = False
 
-async def mac(ctx, frange):
+async def mac(ctx, frange, bot):
     global mac_running
     try:
         frange = int(frange)
