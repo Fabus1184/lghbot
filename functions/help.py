@@ -16,7 +16,8 @@ async def print_help(bot, ctx):
     > **%sleaderboard** or **lb** : show the server leaderboard\n
     > **%sstats** : show personal stats\n
     > **%spipapo** : play pi-pa-po\n
-    **LGH Bot** by <@432116634807959554>
+    **LGH Bot** by <@432116634807959554> & <@429955873931132929>
+    https://github.com/Fabus1184/lghbot
     """ % (
         prefix,
         prefix,
