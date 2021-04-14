@@ -59,7 +59,7 @@ async def trio(ctx, incount, bot):
 
 
     try:
-        os.remove("res/output.mp3")
+        os.remove("res/%i/output.mp3" % ctx.guild.id)
 
         musik = ["res/music1.mp3", "res/music2.mp3", "res/music3.mp3"]
 
@@ -68,7 +68,7 @@ async def trio(ctx, incount, bot):
         music = musik * 7
 
         os.system(
-            'ffmpeg -logelevel quiet -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/output.mp3'
+            'ffmpeg -logelevel quiet -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/%i/output.mp3'
             % (
                 music[0],
                 music[1],
@@ -80,6 +80,7 @@ async def trio(ctx, incount, bot):
                 music[7],
                 music[8],
                 music[9],
+                ctx.guild.id
             )
         )
 
@@ -89,7 +90,7 @@ async def trio(ctx, incount, bot):
     try:
         voice_channel = ctx.author.voice.channel
         vc = await voice_channel.connect()
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("res/output.mp3"))
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("res/%i/output.mp3") % ctx.guild.id)
         vc.play(source)
     except:
         pass
