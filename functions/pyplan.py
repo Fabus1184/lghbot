@@ -13,6 +13,8 @@ from prettytable import PrettyTable
 from datetime import datetime
 import glob
 
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+
 
 def plan(kurse, meine_klasse):
 
@@ -102,7 +104,6 @@ def plan(kurse, meine_klasse):
     return (str(pt),plan_datum)
 
 def fetch():
-    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
     creds = None
 
     if os.path.exists('token.pickle'):
