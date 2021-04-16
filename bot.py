@@ -85,5 +85,7 @@ async def on_ready():
             os.mkdir("res/db/%i" % s.id)
         except FileExistsError:
             pass
+    
+    await vplan.schedule(bot)
 
 bot.run(TOKEN)
