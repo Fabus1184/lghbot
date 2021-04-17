@@ -80,6 +80,7 @@ async def vplan(ctx):
 async def push(bot):
     if pyplan.fetch() == True:
         return
+
     db = TinyDB("res/db/classes.db")
     users = db.search(Query().id != "")
 

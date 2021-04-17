@@ -58,43 +58,34 @@ async def trio(ctx, incount, bot):
     ids = []
 
 
-    try:
-        os.remove("res/%i/output.mp3" % ctx.guild.id)
+    #try:
+    musik = ["res/music1.mp3", "res/music2.mp3", "res/music3.mp3"]
 
-        musik = ["res/music1.mp3", "res/music2.mp3", "res/music3.mp3"]
+    random.shuffle(musik)
 
-        random.shuffle(musik)
+    music = musik * 7
 
-        music = musik * 7
-
-        os.system(
-            'ffmpeg -logelevel quiet -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/%i/output.mp3'
-            % (
-                music[0],
-                music[1],
-                music[2],
-                music[3],
-                music[4],
-                music[5],
-                music[6],
-                music[7],
-                music[8],
-                music[9],
-                ctx.guild.id
-            )
+    os.system(
+        'ffmpeg -loglevel quiet -i "concat:%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" -acodec copy res/db/%i/output.mp3'
+        % (
+            music[0],
+            music[1],
+            music[2],
+            music[3],
+            music[4],
+            music[5],
+            music[6],
+            music[7],
+            music[8],
+            music[9],
+            ctx.guild.id
         )
+    )
 
-    except:
-        pass
-
-    try:
-        voice_channel = ctx.author.voice.channel
-        vc = await voice_channel.connect()
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("res/%i/output.mp3") % ctx.guild.id)
-        vc.play(source)
-    except:
-        pass
-
+    voice_channel = ctx.author.voice.channel
+    vc = await voice_channel.connect()
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("res/db/%i/output.mp3" % ctx.guild.id))
+    vc.play(source)
 
     suchs = []
 
@@ -329,5 +320,7 @@ async def trio(ctx, incount, bot):
             await x.disconnect()
     except:
         pass
+
+    os.system("rm res/db/%i/output.mp3" % ctx.guild.id)
 
     trio_running.remove(ctx.guild.id)

@@ -10,3 +10,4 @@ python-dotenv==0.17.0
 tinydb==4.4.0
 ffmpeg==1.4.0
 dict-hash==1.1.16
+pynacl==1.4.0
