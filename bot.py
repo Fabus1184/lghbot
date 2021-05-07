@@ -4,7 +4,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from functions import ban, config, suggest, help, set, get, tools, leaderboard, stats, trio, mac, pppkkk, vplan
+from functions import ban, config, suggest, help, set, get, tools, leaderboard, stats, trio, mac, pppkkk, vplan, graph
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -71,6 +71,11 @@ async def l(ctx, mention):
 async def m(ctx, *args):
     await suggest.suggestion(bot, ctx, *args)
 
+@bot.command(name="graph")
+async def plot(ctx, eq, s, f):
+    await graph.plot(ctx, eq, s, f)
+
+
 @bot.event
 async def on_command_error(ctx, error):
     if error != TimeoutError:
@@ -85,6 +90,7 @@ async def on_ready():
             os.mkdir("res/db/%i" % s.id)
         except FileExistsError:
             pass
+    print("READY")
     await vplan.schedule(bot)
 
 bot.run(TOKEN)
