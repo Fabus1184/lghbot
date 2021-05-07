@@ -72,8 +72,8 @@ async def m(ctx, *args):
     await suggest.suggestion(bot, ctx, *args)
 
 @bot.command(name="graph")
-async def plot(ctx, eq, s, f):
-    await graph.plot(ctx, eq, s, f)
+async def plot(ctx, equation, start, end):
+    await graph.plot(ctx, equation, start, end)
 
 
 @bot.event
