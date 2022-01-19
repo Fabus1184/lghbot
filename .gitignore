@@ -1,4 +1,5 @@
 token.pickle
+token.json
 credentials.json
 .env
 */__pycache__/*
