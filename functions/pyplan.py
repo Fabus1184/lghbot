@@ -1,111 +1,50 @@
 from __future__ import print_function
 import pickle
 import os
-from os import path
-import subprocess
 import base64
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from dict_hash import sha256
-import sys
-from prettytable import PrettyTable
 from datetime import datetime
 import glob
+from PIL import Image, ImageDraw, ImageFont
+from pandas import DataFrame
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+from tabula import read_pdf
+from tabulate import tabulate
+
+_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+_FIELDS = ["Datum", "Stunde", "Art", "Klasse", "Lehrer", "Kurs", "Raum", "Kommentar"]
 
 
 def plan(kurse, meine_klasse):
-
     file = glob.glob("res/vplan/*.pdf")
+    file.sort()
     file = (file[::-1])[0]
 
-    x = subprocess.check_output('pdfgrep  -i " " %s | grep -v "Landesgymnasium" | grep -v "Schwäbisch" | grep -v "Standard" | grep -v "(Raum)"' % (file), shell=True, text=True)
-    x = x.split("\n")
+    df = DataFrame(read_pdf(file, pages="all", output_format="dataframe")[0])
+    df = df[(df["Art"] != "ht")]
 
-    file = file.split("/")[len(file.split("/"))-1]
-    file = file.split(".pdf")[0]
-    plan_datum = str(file)[8:10] + "." + str(file)[5:7] + "." + str(file)[0:4]
+    for x in df.index[df["Tag"].isnull()].tolist():
+        for k in df.columns.values:
+            if str(df.loc[x, k]) != "nan":
+                df.loc[x - 1, k] = df.loc[x - 1, k] + df.loc[x, k]
+                df = df.drop(x)
 
-    for line in range(0,len(x)):
-        if not x[line]:
-            x.pop(line)
-    for i in range(0,len(x)):
-        try:
-            if x[i][0] == " ":
-                x[i-1] += " " + ' '.join(x[i].split())
-                x.pop(i)
-        except:
-            pass
-    for i in range(0,len(x)):
-        if x[i][3] != " ":
-            x[i] = x[i][0:2] + "  " + x[i][3]+x[i][5]+x[i][7] + " " + x[i][8:len(x[i])]
-        if x[i][6] == " " and x[i][7] != " ":
-            x[i] = x[i][0:6] + x[i][7] + x[i][9] + x[i][10] + "  " + x[i][11:len(x[i])]
-    datum = []
-    stunde = []
-    art = []
-    klasse = []
-    lehrer = []
-    kurs = []
-    raum = []
-    kommentar = []
-    for line in x:
-        orig = line
-        appended = False
-        if len(line.lstrip(' '))+25 < len(line):
-            appended = True
-        datum.append(line[0:2])
-        stunde.append(line[4:9].replace(" ",""))
-        art.append(line[12:24].replace(" ",""))
-        line=line[25:]
-        klasse.append(line.split(" ")[0])
-        line=line[len(line.split(" ")[0]):]
-        line=line.lstrip(' ')
-        lehrer.append(line.split(" ")[0])
-        line=line[len(line.split(" ")[0]):]
-        line=line.lstrip(' ')
-        kurs.append(line[0:8].replace(" ",""))
-        line=line[8:]
-        if line[3:8].replace(" ","") == "":
-            raum.append("")
-            line=line.lstrip(' ')
-        else:
-            line=line.lstrip(' ')
-            raum.append(line.split(" ")[0])
-            line=line[len(line.split(" ")[0]):]
-            line=line.lstrip(' ')
-        if not appended:
-            kommentar.append(line)
-        else:
-            kommentar[len(kommentar)-1]+=orig.lstrip(" ")
-            kommentar.append(" ")
-    for i in range(0,len(datum)):
-        if kommentar[i] == "":
-            kommentar[i] = "---"
-        kommentar[i] = kommentar[i].replace("+ ","+")
-        kommentar[i] = kommentar[i].replace(" +","+")
-        kommentar[i] = kommentar[i].replace("+"," + ")
+    f = tabulate(df, tablefmt="fancy_grid", headers=_FIELDS, showindex=False).split("\n")
+    f = [x for x in f if (any([k in x for k in kurse]) and meine_klasse in x) or (f.index(x) in (0, 1, 2, len(f) - 1))]
 
-    pt = PrettyTable()
+    image = Image.new("RGB", (1920, 1080), (0x36, 0x39, 0x3f))
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype("/usr/share/fonts/ubuntu-font-family/UbuntuMono-R.ttf", 30)
+    [draw.text((10, (f.index(x) + 1) * 30), x, (0xC5, 0xD6, 0xD0), font=font) for x in f]
+    img_resized = image.resize((1920, 1080), Image.ANTIALIAS)
 
-    pt.field_names = ["Datum", "Stunde", "Art", "Klasse", "Lehrer" ,"Kurs" ,"Raum" ,"Kommentar"]
-    for i in range(0,len(datum)):
-        condition = False
-        for x in kurse:
-            if str(x) in str(kommentar[i]):
-                condition = True
-        if meine_klasse in klasse[i] and (kurs[i] in kurse or condition):
-            pt.add_row([datum[i],stunde[i],art[i],klasse[i],lehrer[i],kurs[i],raum[i],kommentar[i]])
+    return img_resized, file.split(".pdf")[0]
 
-    pt.align = "l"
-
-    return (str(pt),plan_datum)
 
 def fetch():
-    creds = None
-
     if os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
             creds = pickle.load(token)
@@ -113,9 +52,8 @@ def fetch():
         raise Exception
 
     service = build('gmail', 'v1', credentials=creds)
-    id = None
-
-    result = service.users().messages().list(maxResults=5, userId='me', labelIds=['Label_9200074680711448170']).execute()
+    result = service.users().messages().list(maxResults=5, userId='me',
+                                             labelIds=['Label_9200074680711448170']).execute()
     messages = result.get('messages')
 
     for msg in messages:
@@ -125,17 +63,15 @@ def fetch():
 
         txt = service.users().messages().get(userId='me', id=msg['id']).execute()
         try:
-            payload = txt['payload']
-            header = payload['headers']
-
             for part in txt['payload'].get('parts', ''):
                 if part['filename'] and "ertret" in part['filename']:
 
-                    att_id=part['body']['attachmentId']
-                    att=service.users().messages().attachments().get(userId='me', messageId=msg['id'],id=att_id).execute()
-                    data=att['data']
+                    att_id = part['body']['attachmentId']
+                    att = service.users().messages().attachments().get(userId='me', messageId=msg['id'],
+                                                                       id=att_id).execute()
+                    data = att['data']
                     file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                    
+
                     with open("res/vplan/%s.pdf" % (datetime.now().strftime("%Y.%m.%d.%H.%M")), 'wb') as f:
                         f.write(file_data)
                         f.close()
@@ -149,15 +85,16 @@ def fetch():
             print(e)
             pass
 
+
 def auth():
     with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
+        creds = pickle.load(token)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', _SCOPES)
             creds = flow.run_local_server(port=0)
 
         with open('token.pickle', 'wb') as token:

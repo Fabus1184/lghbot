@@ -1,9 +1,12 @@
 from functions import config
 import discord
 
+
 async def print_help(bot, ctx):
     prefix = ctx.prefix
     s = bot.get_channel(config.config['suggest-channel'])
+
+    assert s is not None, "suggest-channel incorrect!"
 
     text = """
     > **%sset \"class1, class2, class3, ... \" grade** : set your classes and your grade\n

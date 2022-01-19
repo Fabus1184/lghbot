@@ -1,5 +1,9 @@
 token.pickle
 credentials.json
 .env
-functions/__pycache__
+*/__pycache__/*
 join_link
+lib/*
+bin/*
+.idea/*
+lib64/*
